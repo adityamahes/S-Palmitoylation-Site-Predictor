@@ -2,7 +2,7 @@ import urllib.request, urllib.parse, urllib.error
 import ssl
 import numpy as np
 import pandas as pd
-from tensorflow.keras.utils import to_categorical
+from keras.utils import to_categorical
 
 def sequenced (accession):
     url="https://www.ebi.ac.uk/proteins/api/uniparc?size=-1&accession=ACCESSION"
@@ -23,6 +23,16 @@ def sequenced (accession):
         else:
             sequence += line
     return sequence.strip("'")
+
+def c_position_list(amino_sequence):
+    position = 0
+    position_list = []
+    for letter in amino_sequence:
+        position += 1
+        if letter == "C":
+            position_list.append(position)
+    return position_list
+
 
 def truncate(amino_sequence, position, output_range):
     if position >= len(amino_sequence):
