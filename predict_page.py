@@ -17,7 +17,7 @@ def show_predict_page():
 
     if type_input == "Accession":
         st.write("""#### Enter the following ####""")
-        accession = st.text_input("Accession", "P21279")
+        accession = st.text_input("Accession", "Q8WZ42")
         # position = int(st.text_input("Position of Cystiene Residue", "10"))
         amino_acid_sequence = sequenced(accession)
         position_list = c_position_list(amino_acid_sequence)
@@ -51,12 +51,23 @@ def show_predict_page():
     data = load_model()
 
 
-    output = data(input)["output_0"].numpy()
+    output = data(input)["output_0"].numpy().tolist()
     
+    def sort_list(list1, list2):
+ 
+        zipped_pairs = zip(list2, list1)
+    
+        z = [x for _, x in sorted(zipped_pairs, reverse=True)]
+        
+        return z
+
+    position_list = sort_list(position_list, output)
+    truncated_sequence_list = sort_list(truncated_sequence_list, output)
+    output = [str(round(i[0] * 100, 2)) + "%" for i in sort_list(output, output)]
 
     table = {
         "Position": position_list,
-        "Likeliness of being an S Palmitoylation Site": [str(round(i[0] * 100, 2)) + "%" for i in output.tolist()],
+        "Likeliness of being an S Palmitoylation Site": output,
         "Truncated Sequence": truncated_sequence_list
     }
     df = pd.DataFrame(table)
@@ -64,3 +75,5 @@ def show_predict_page():
     if ok:
         st.subheader(f"S Palmitoylation Site Prediction for all Cystiene Residues")
         st.table(df)
+
+    
